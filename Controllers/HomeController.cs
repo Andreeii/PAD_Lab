@@ -8,6 +8,12 @@ namespace WebApp1.Controllers
     [Route("[controller]")]
     public class HomeController : ControllerBase
     {
+        private readonly ILogger _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
 
         [HttpGet("getAllMovies")]
         public IActionResult Get()
@@ -15,6 +21,11 @@ namespace WebApp1.Controllers
             var client = new RestClient();
             var request = new RestRequest("http://localhost:8080/home/movies", Method.Get);
             var response = client.Execute(request);
+
+            //for test, to delete
+            _logger.LogError("123");
+            _logger.LogWarning("123");
+            //
             return Ok(response.Content);
         }
 
