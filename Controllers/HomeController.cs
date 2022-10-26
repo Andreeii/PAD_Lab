@@ -9,21 +9,27 @@ namespace WebApp1.Controllers
 	[Route("[controller]")]
 	public class HomeController : ControllerBase
 	{
+		private readonly IRepository repository;
+		public HomeController(IRepository repository)
+		{
+			this.repository = repository;
+		}
 
 		[HttpGet("getMovieById/{id}")]
 		public IActionResult Get(long id)
 		{
-			var repository = new Repository();
-			var movie = repository.GetMovieById(id);
+
+			var movie = this.repository.GetMovieById(id);
+			if (movie == null)
+				return NotFound();
 			return Ok(movie);
 		}
 
 		[HttpPost("postMovie")]
 		public IActionResult Post(MovieDto movie)
 		{
-			var repository = new Repository();
-			repository.InsertMovie(movie);
-			return Ok(movie);
+			var entity = this.repository.InsertMovie(movie);
+			return Ok(entity);
 		}
 	}
 }

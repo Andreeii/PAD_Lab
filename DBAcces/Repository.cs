@@ -3,69 +3,31 @@ using WebApp1.Models;
 
 namespace WebApp1.DBAcces
 {
-	public class Repository
+	public class Repository : IRepository
 	{
-		public string ConnectionString { get; set; } = "Data Source=localhost;Initial Catalog=Movies;Integrated Security=True;Integrated Security=True;";
+		private readonly MoviesContext context;
+		public Repository(MoviesContext context)
+		{
+			this.context = context;
+		}
+
 
 		public Movie GetMovieById(long movieId)
 		{
-			Movie movie = null;
-			try
-			{
-				string query = @$"select *
-                                   from movie
-                                   where id={movieId}";
-
-				var parameters = new List<SqlParameter>();
-				using var connection = new SqlConnection(ConnectionString);
-				connection.Open();
-				using var sqlCommand = new SqlCommand(query, connection);
-
-				var datareader = sqlCommand.ExecuteReader();
-
-				while (datareader.Read())
-				{
-					movie = new Movie();
-					movie.Id = Convert.ToInt64(datareader["id"]);
-					movie.Title = Convert.ToString(datareader["title"]);
-					movie.Director = Convert.ToString(datareader["director"]);
-					movie.Stars = Convert.ToInt32(datareader["stars"]);
-
-				}
-			}
-			catch (Exception ex)
-			{
-
-			}
-
-			return movie;
+			return context.Movies.FirstOrDefault(x => x.Id == movieId);
 		}
 
-		public bool InsertMovie(MovieDto movie)
+		public Movie InsertMovie(MovieDto movieDto)
 		{
-			bool value = false;
-
-			var query = @$"insert into movie (title, director, stars, year)values (
-                         '{movie.Title}','{movie.Director}','{movie.Stars}', '{DateTime.Now}')";
-
-			using (SqlConnection connection = new SqlConnection(ConnectionString))
+			var entity = context.Add(new Movie()
 			{
-				connection.Open();
-
-				using (SqlCommand command = new SqlCommand(query, connection))
-				{
-					try
-					{
-						value = command.ExecuteNonQuery() > 0;
-					}
-					catch (Exception ex)
-					{
-					}
-				}
-				connection.Close();
-			}
-
-			return value;
+				Title = movieDto.Title,
+				Director = movieDto.Director,
+				Year = Convert.ToString(movieDto.Year),
+				Stars = movieDto.Stars
+			}).Entity;
+			context.SaveChanges();
+			return entity;
 		}
 	}
 }
