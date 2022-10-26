@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApp1.DBAcces;
+using WebApp1.Extensions;
 using WebApp1.Models;
 
 namespace WebApp1.Controllers
@@ -9,6 +9,19 @@ namespace WebApp1.Controllers
 	[Route("[controller]")]
 	public class HomeController : ControllerBase
 	{
+		private readonly string movieKey = "__movieKey";
+		protected Movie Movie
+		{
+			get
+			{
+				return HttpContext.Session.Get<Movie>(movieKey);
+			}
+			set
+			{
+				HttpContext.Session.Set(movieKey, value);
+			}
+		}
+
 		private readonly IRepository repository;
 		public HomeController(IRepository repository)
 		{
@@ -18,6 +31,7 @@ namespace WebApp1.Controllers
 		[HttpGet("getMovieById/{id}")]
 		public IActionResult Get(long id)
 		{
+			var x = Movie;
 
 			var movie = this.repository.GetMovieById(id);
 			if (movie == null)
@@ -29,6 +43,7 @@ namespace WebApp1.Controllers
 		public IActionResult Post(MovieDto movie)
 		{
 			var entity = this.repository.InsertMovie(movie);
+			Movie = entity;
 			return Ok(entity);
 		}
 	}

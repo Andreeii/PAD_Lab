@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using WebApp1.Models;
+﻿using WebApp1.Models;
 
 namespace WebApp1.DBAcces
 {
